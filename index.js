@@ -21,6 +21,7 @@ async function run() {
   try {
     await client.connect();
     const serviceCollection = client.db("geniusCar").collection("service");
+    const orderCollection = client.db("geniusCar").collection("order");
 
     //get
     app.get("/service", async (req, res) => {
@@ -52,6 +53,20 @@ async function run() {
       const result = await serviceCollection.deleteOne(query);
       res.send(result);
     });
+
+    // Order Collection Api
+    app.post("/order", async (req, res) => {
+      const newOrder = req.body;
+      const result = await orderCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
+    app.get("/order", async (req, res) => {
+      const query = {};
+      const cursor = orderCollection.find(query);
+      const services = await cursor.toArray();
+      res.send(services);
+    });
   } finally {
   }
 }
@@ -60,10 +75,6 @@ run().catch(console.dir);
 
 app.get("/", (req, res) => {
   res.send("Successfully run simpl care server");
-});
-
-app.get("/user", (req, res) => {
-  res.send("user Successfully created for myself");
 });
 
 app.listen(port, () => {
